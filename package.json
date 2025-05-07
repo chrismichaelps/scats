@@ -1,0 +1,77 @@
+{
+  "name": "sca-ts",
+  "version": "0.1.1-alpha.0",
+  "description": "A comprehensive TypeScript library bringing Scala's powerful functional programming paradigms to JavaScript/TypeScript, featuring immutable collections, monads, pattern matching, and more",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "typecheck:test": "tsc --project tsconfig.test.json --noEmit",
+    "example": "tsx examples/basic.ts",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "version:prerelease": "npm version prerelease --preid=alpha",
+    "version:prerelease:beta": "npm version prerelease --preid=beta",
+    "release": "npm run build && npm publish"
+  },
+  "homepage": "https://github.com/chrismichaelps/scats#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrismichaelps/scats.git"
+  },
+  "keywords": [
+    "typescript",
+    "scala",
+    "functional-programming",
+    "fp",
+    "option",
+    "either",
+    "try",
+    "pattern-matching",
+    "immutable",
+    "collections",
+    "list",
+    "map",
+    "set",
+    "vector",
+    "lazylist",
+    "lazy-evaluation",
+    "monad",
+    "monads",
+    "state-monad",
+    "writer-monad",
+    "type-class",
+    "tuple",
+    "ordering",
+    "for-comprehension",
+    "resource-management",
+    "validated",
+    "adt",
+    "algebraic-data-types"
+  ],
+  "author": "Chris M <chrisperezsantiago1@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.32.0",
+    "@typescript-eslint/parser": "^8.32.0",
+    "eslint": "^8.56.0",
+    "tsup": "^8.0.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
