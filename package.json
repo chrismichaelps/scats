@@ -1,5 +1,5 @@
 {
-  "name": "sca-ts",
+  "name": "@chrismichaelps/scats",
   "version": "0.1.1-alpha.0",
   "description": "A comprehensive TypeScript library bringing Scala's powerful functional programming paradigms to JavaScript/TypeScript, featuring immutable collections, monads, pattern matching, and more",
   "type": "module",
@@ -22,7 +22,7 @@
     "version:major": "npm version major",
     "version:prerelease": "npm version prerelease --preid=alpha",
     "version:prerelease:beta": "npm version prerelease --preid=beta",
-    "release": "npm run build && npm publish"
+    "release": "npm run build && npm publish --access=public"
   },
   "homepage": "https://github.com/chrismichaelps/scats#readme",
   "repository": {
