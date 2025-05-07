@@ -6,28 +6,33 @@
 import {
   // Core types
   Option, Some, None,
-} from '../src/Option';
-import {
+  // Additional imports
   Either, Left, Right,
-} from '../src/Either';
-import {
-  Try, Success, Failure, TryAsync
-} from '../src/Try';
-import {
-  List, empty as emptyList,
-} from '../src/List';
-import {
-  Map as TMap, empty as emptyMap,
-} from '../src/Map';
-import {
-  Set as TSet, empty as emptySet,
-} from '../src/Set';
-import {
+  Try, Success, Failure, TryAsync,
+  ExecutionContext,
+  // Collections
+  List, List as ListModule,
+  Map as TMap, Map as MapModule,
+  Set as TSet, Set as SetModule,
+  ArraySeq,
+  ArrayBuffer,
+  // Pattern matching
   match, when, and, or, not, array, extract, Pattern,
-} from '../src/Match';
-import {
-  For, Env, ForComprehensionBuilder, Monad
-} from '../src/ForComprehension';
+  otherwise, value, object, type as matchType,
+  // For comprehension
+  For, Env, ForComprehensionBuilder, Monad,
+  // Type classes
+  TypeClass, TypeClassRegistry, extension,
+  // Other features
+  Tuple,
+  Ordering,
+  Using, Closeable
+} from '../dist';
+
+// Get empty instances from their respective modules
+const emptyList = ListModule.empty;
+const emptyMap = MapModule.empty;
+const emptySet = SetModule.empty;
 
 // ======= OPTION EXAMPLES =======
 console.log('=== Option Examples ===');
@@ -55,10 +60,11 @@ console.log(`fromNullable exists: ${fromNullable.isSome}`);
 // ======= EITHER EXAMPLES =======
 console.log('\n=== Either Examples ===');
 
-const rightValue = Right<number, string>(42);
-const leftValue = Left<string, number>('error');
+// Basic Either usage
+const rightValue = Right<number>(42);
+const leftValue = Left<string, number>('error occurred');
 
-// Map and fold
+// Map and chain operations
 console.log(
   rightValue
     .map(n => n * 2)
@@ -75,7 +81,52 @@ console.log(
       err => `Error: ${err}`,
       val => `Success: ${val}`
     )
-); // "Error: error"
+); // "Error: error occurred"
+
+// Practical example: Safe division
+function safeDivide(a: number, b: number): Either<string, number> {
+  if (b === 0) {
+    return Left('Division by zero');
+  }
+  return Right(a / b);
+}
+
+console.log('\n-- Safe Division Examples --');
+console.log(
+  safeDivide(10, 2)
+    .map(result => `Result: ${result}`)
+    .getOrElse('Error occurred')
+); // "Result: 5"
+
+console.log(
+  safeDivide(10, 0)
+    .map(result => `Result: ${result}`)
+    .getOrElse('Error occurred')
+); // "Error occurred"
+
+// Chain (flatMap) operations
+console.log('\n-- Chain Operations --');
+const chainResult = safeDivide(10, 2)
+  .flatMap(result => safeDivide(result, 2));
+
+console.log(
+  chainResult.fold(
+    err => `Error: ${err}`,
+    val => `Final result: ${val}`
+  )
+); // "Final result: 2.5"
+
+// Pattern matching with Either
+console.log('\n-- Pattern Matching with Either --');
+const matchEither = (e: Either<string, number>): string => {
+  return match<Either<string, number>, string>(e)
+    .with(when(e => e.isRight), e => `Got right value: ${e.get()}`)
+    .with(when(e => e.isLeft), e => `Got left value: ${e.getLeft()}`)
+    .run();
+};
+
+console.log(matchEither(Right(42))); // "Got right value: 42"
+console.log(matchEither(Left('error occurred'))); // "Got left value: error occurred"
 
 // ======= TRY EXAMPLES =======
 console.log('\n=== Try Examples ===');
@@ -400,4 +451,220 @@ const runAsyncExamples = async () => {
 // Run the async examples and then complete
 runAsyncExamples().then(() => {
   console.log('\nAll examples completed.');
-}); 
+});
+
+// ======= TYPE CLASS EXAMPLES =======
+console.log('\n=== Type Class Examples ===');
+
+// Define a type class for numeric operations
+interface NumericTypeClass<T> extends TypeClass<T> {
+  add(a: T, b: T): T;
+  zero(): T;
+}
+
+// Create instances for different types
+const basicNumberNumeric: NumericTypeClass<number> = {
+  __type: undefined as any as number,
+  add: (a, b) => a + b,
+  zero: () => 0
+};
+
+const basicStringNumeric: NumericTypeClass<string> = {
+  __type: undefined as any as string,
+  add: (a, b) => a + b,
+  zero: () => ""
+};
+
+// Register instances in a registry
+const basicRegistry = new TypeClassRegistry<NumericTypeClass<any>>();
+basicRegistry.register(basicNumberNumeric, Number);
+basicRegistry.register(basicStringNumeric, String);
+
+// Using the registry
+function sumWithTypeClass<T>(values: T[], registry: TypeClassRegistry<NumericTypeClass<any>>): T {
+  if (values.length === 0) throw new Error("Cannot sum empty array");
+  const numeric = registry.getFor(values[0]);
+  return values.reduce((acc, val) => numeric.add(acc, val), numeric.zero());
+}
+
+console.log(`Sum numbers: ${sumWithTypeClass([1, 2, 3, 4], basicRegistry)}`);
+console.log(`Concat strings: ${sumWithTypeClass(["a", "b", "c"], basicRegistry)}`);
+
+// ======= TUPLE EXAMPLES =======
+console.log('\n=== Tuple Examples ===');
+
+// Creating tuples
+const pair = Tuple.of(1, "hello");
+const triple = Tuple.of(1, "hello", true);
+
+console.log(`Pair: ${pair.toString()}`);
+console.log(`Triple: ${triple.toString()}`);
+
+// Accessing elements
+console.log(`First of pair: ${pair._1}`);
+console.log(`Second of pair: ${pair._2}`);
+console.log(`Third of triple: ${triple._3}`);
+
+// Tuple operations
+const swapped = pair.swap();
+console.log(`Swapped pair: ${swapped.toString()}`);
+
+const mappedFirst = pair.map1(n => n * 2);
+console.log(`Mapped first: ${mappedFirst.toString()}`);
+
+// ======= ORDERING EXAMPLES =======
+console.log('\n=== Ordering Examples ===');
+
+const numbersToSort = [3, 1, 4, 1, 5, 9];
+const sortedNumbers = [...numbersToSort].sort((a, b) => Ordering.number.compare(a, b));
+console.log(`Sorted numbers: ${sortedNumbers}`);
+
+const stringsToSort = ["banana", "apple", "cherry"];
+const sortedStrings = [...stringsToSort].sort((a, b) => Ordering.string.compare(a, b));
+console.log(`Sorted strings: ${sortedStrings}`);
+
+// Custom ordering
+type PersonWithAge = { name: string; age: number };
+const peopleToSort = [
+  { name: "Alice", age: 30 },
+  { name: "Bob", age: 25 },
+  { name: "Charlie", age: 35 }
+];
+
+const byAge = Ordering.by<PersonWithAge, number>(p => p.age);
+const sortedByAge = [...peopleToSort].sort((a, b) => byAge.compare(a, b));
+console.log(`Sorted by age: ${sortedByAge.map(p => `${p.name}(${p.age})`).join(", ")}`);
+
+// ======= USING (RESOURCE MANAGEMENT) EXAMPLES =======
+console.log('\n=== Using (Resource Management) Examples ===');
+
+// Create a resource that needs to be closed
+class Resource implements Closeable {
+  constructor(readonly id: string) {
+    console.log(`Resource ${this.id} created`);
+  }
+
+  getData(): string {
+    return `Data from resource ${this.id}`;
+  }
+
+  close(): void {
+    console.log(`Resource ${this.id} closed`);
+  }
+}
+
+// Use a single resource
+const singleResult = Using.resource(new Resource("123"), (resource) => {
+  return resource.getData().toUpperCase();
+});
+console.log(`Single resource result: ${singleResult}`);
+
+// Use multiple resources
+const multiResult = Using.resources(
+  [new Resource("A"), new Resource("B")],
+  ([resourceA, resourceB]) => {
+    return resourceA.getData() + " + " + resourceB.getData();
+  }
+);
+console.log(`Multiple resources result: ${multiResult}`);
+
+// ======= COLLECTIONS EXAMPLES =======
+console.log('\n=== Collections Examples ===');
+
+// ArraySeq examples (implements IndexedSeq)
+const arraySeq = new ArraySeq([1, 2, 3, 4, 5]);
+console.log(`ArraySeq: ${Array.from(arraySeq).join(', ')}`);
+console.log(`Mapped ArraySeq: ${Array.from(arraySeq.map(x => x * 2)).join(', ')}`);
+console.log(`Filtered ArraySeq: ${Array.from(arraySeq.filter(x => x % 2 === 0)).join(', ')}`);
+const folded = arraySeq.foldLeft(0, (acc, x) => acc + x);
+console.log(`Folded ArraySeq: ${folded}`);
+
+// ArrayBuffer examples (implements Buffer)
+const buffer = new ArrayBuffer<number>();
+buffer.append(1).append(2).append(3);
+console.log(`Buffer after appends: ${Array.from(buffer).join(', ')}`);
+buffer.prepend(0);
+console.log(`Buffer after prepend: ${Array.from(buffer).join(', ')}`);
+buffer.clear();
+console.log(`Buffer after clear: ${Array.from(buffer).join(', ')}`);
+
+// ======= EXTENDED PATTERN MATCHING EXAMPLES =======
+console.log('\n=== Extended Pattern Matching Examples ===');
+
+// Using otherwise in pattern matching
+const matchWithOtherwise = match(5)
+  .with(when(x => x > 10), () => "Greater than 10")
+  .otherwise(() => "10 or less")
+  .run();
+console.log(`Match with otherwise: ${matchWithOtherwise}`);
+
+// Using value matcher
+const matchWithValue = match("hello")
+  .with(value("hello"), () => "It's hello")
+  .with(value("world"), () => "It's world")
+  .otherwise(() => "Something else")
+  .run();
+console.log(`Match with value: ${matchWithValue}`);
+
+// Using object matcher
+const obj = { name: "John", age: 30 };
+const matchWithObject = match(obj)
+  .with(object({ name: "John" }), () => "It's John")
+  .with(object({ name: "Jane" }), () => "It's Jane")
+  .otherwise(() => "Someone else")
+  .run();
+console.log(`Match with object: ${matchWithObject}`);
+
+// Using type matcher with proper type predicates
+class Animal { constructor(public name: string) { } }
+class Dog extends Animal { bark() { return "woof"; } }
+class Cat extends Animal { meow() { return "meow"; } }
+
+const dog = new Dog("Rex");
+const matchWithType = match<Animal>(dog)
+  .with(when(x => x instanceof Dog), (x) => (x as Dog).bark())
+  .with(when(x => x instanceof Cat), (x) => (x as Cat).meow())
+  .otherwise(() => "Unknown animal")
+  .run();
+console.log(`Match with type: ${matchWithType}`);
+
+// ======= EXTENDED TYPE CLASS EXAMPLES =======
+console.log('\n=== Extended Type Class Examples ===');
+
+// Create and register a numeric instance
+const extendedNumberNumeric: NumericTypeClass<number> = {
+  __type: undefined as any as number,
+  add: (a, b) => a + b,
+  zero: () => 0
+};
+
+const extendedRegistry = new TypeClassRegistry<NumericTypeClass<any>>();
+extendedRegistry.register(extendedNumberNumeric, Number);
+
+// Using the registry directly
+const numeric = extendedRegistry.getFor(5);
+console.log(`Add with type class: ${numeric.add(5, 10)}`);
+
+// Using extension methods
+const getNumberValue = (value: any) => value as number;
+const addMethod = extension<number, NumericTypeClass<number>>(
+  extendedRegistry,
+  getNumberValue
+)("add");
+
+// ======= EXECUTION CONTEXT EXAMPLES =======
+console.log('\n=== Execution Context Examples ===');
+
+const ec = ExecutionContext.global;
+
+// Execute a task
+ec.execute(() => {
+  console.log("Task executed in global execution context");
+});
+
+// Execute a task after delay
+setTimeout(() => {
+  ec.execute(() => {
+    console.log("Delayed task executed");
+  });
+}, 1000); 

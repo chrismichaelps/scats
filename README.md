@@ -190,12 +190,14 @@ match(person)
     extract((p) => p.name),
     (name) => `Name is: ${name}`
   )
+  .otherwise(() => "No match")
   .run();
 
 // Array pattern
 match([1, 2, 3])
   .with(array([1, 2, 3]), () => "exact match")
   .with(array([1, when((n) => n > 1), 3]), () => "pattern match")
+  .otherwise(() => "no match")
   .run();
 
 // Combining patterns with or, and, not
@@ -209,6 +211,7 @@ match(42)
     () => "between 40 and 50"
   )
   .with(not(value(100)), () => "anything but 100")
+  .otherwise(() => "no match")
   .run();
 
 // Type matching
@@ -217,13 +220,14 @@ class Dog {}
 match(new Cat())
   .with(matchType(Cat), () => "It's a cat")
   .with(matchType(Dog), () => "It's a dog")
+  .otherwise(() => "unknown animal")
   .run();
 ```
 
 ### Immutable Collections
 
 ```typescript
-import { List, Map, Set } from "sca-ts";
+import { List, Map, Set, ArraySeq, ArrayBuffer } from "sca-ts";
 
 // List
 const numbers = List.of(1, 2, 3, 4, 5);
@@ -244,6 +248,18 @@ const uniqueNumbers = Set.of(1, 2, 3, 2, 1);
 const union = uniqueNumbers.union(Set.of(3, 4, 5));
 const intersection = uniqueNumbers.intersection(Set.of(2, 3, 4));
 const difference = uniqueNumbers.difference(Set.of(2, 3));
+
+// ArraySeq (IndexedSeq)
+const seq = new ArraySeq([1, 2, 3, 4, 5]);
+const mappedSeq = seq.map((x) => x * 2);
+console.log(Array.from(mappedSeq).join(", ")); // "2, 4, 6, 8, 10"
+
+// ArrayBuffer (mutable Buffer)
+const buffer = new ArrayBuffer<number>();
+buffer.append(1).append(2).append(3);
+console.log(Array.from(buffer).join(", ")); // "1, 2, 3"
+buffer.prepend(0);
+console.log(Array.from(buffer).join(", ")); // "0, 1, 2, 3"
 ```
 
 ### LazyList
@@ -408,21 +424,14 @@ registry.register(stringNumeric, String);
 
 // Using the registry
 function sum<T>(values: T[], registry: TypeClassRegistry<Numeric<any>>): T {
+  if (values.length === 0) throw new Error("Cannot sum empty array");
   const numeric = registry.getFor(values[0]);
   return values.reduce((acc, val) => numeric.add(acc, val), numeric.zero());
 }
 
-// Using the decorator pattern
-@register(registry)
-class StringNumericImpl implements Numeric<string> {
-  __type?: string;
-  add(a: string, b: string): string {
-    return a + b;
-  }
-  zero(): string {
-    return "";
-  }
-}
+// Example usage
+console.log(sum([1, 2, 3, 4], registry)); // 10
+console.log(sum(["a", "b", "c"], registry)); // "abc"
 
 // Using extension methods
 const getNumberValue = (value: any) => value as number;
@@ -436,6 +445,10 @@ withContext<number, Numeric<number>>(registry, (numeric) => {
   const result = numeric.add(5, 10);
   console.log(result); // 15
 });
+
+// Using the registry directly
+const numeric = registry.getFor(5);
+console.log(`Add with type class: ${numeric.add(5, 10)}`); // Add with type class: 15
 ```
 
 ### Tuples
@@ -529,7 +542,7 @@ const byLastThenFirst = byLastname.andThen(byFirstname);
 ### Resource Management
 
 ```typescript
-import { Using, Closeable } from "sca-ts";
+import { Using, Closeable, Success } from "sca-ts";
 
 // Create a resource that needs to be closed
 class Resource implements Closeable {
@@ -542,7 +555,7 @@ class Resource implements Closeable {
   }
 
   close(): void {
-    console.log(`Resource ${this.id} closed`);
+    console.log(`Resource ${id} closed`);
   }
 }
 
@@ -550,6 +563,7 @@ class Resource implements Closeable {
 const result = Using.resource(new Resource("123"), (resource) => {
   return resource.getData().toUpperCase();
 });
+// Result is: Success(DATA FROM RESOURCE 123)
 // resource.close() is guaranteed to be called, even if an exception is thrown
 
 // Using multiple resources
@@ -559,27 +573,8 @@ const multiResult = Using.resources(
     return resourceA.getData() + " + " + resourceB.getData();
   }
 );
+// Result is: Success(Data from resource A + Data from resource B)
 // Both resources are closed in reverse order (B then A)
-
-// Using async resources
-const asyncResult = await Using.resourceAsync(
-  new Resource("async"),
-  async (resource) => {
-    const data = resource.getData();
-    return await processDataAsync(data);
-  }
-);
-// resource.close() is called after the promise resolves or rejects
-
-// Using the manager pattern
-const manager = Using.manager(
-  () => new Resource("managed"),
-  (resource) => resource.close()
-);
-
-const managedResult = manager.use((resource) => {
-  return resource.getData().toUpperCase();
-});
 ```
 
 ### State Monad
