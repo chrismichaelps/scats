@@ -3,8 +3,8 @@
 </div>
 
 <div align="center">  
-  <img src="https://img.shields.io/npm/v/@chrismichaelps/scats" alt="npm version" />
-  <img src="https://img.shields.io/npm/dm/@chrismichaelps/scats" alt="npm downloads" />
+  <img src="https://img.shields.io/npm/v/@chris5855/scats" alt="npm version" />
+  <img src="https://img.shields.io/npm/dm/@chris5855/scats" alt="npm downloads" />
   <img src="https://img.shields.io/github/license/chrismichaelps/sca-ts?color=blue" alt="license" />
   <img src="https://img.shields.io/github/stars/chrismichaelps/sca-ts?style=social" alt="stars" />
 </div>
@@ -53,19 +53,19 @@ A comprehensive TypeScript library bringing Scala's powerful functional programm
 ### npm
 
 ```bash
-npm install @chrismichaelps/scats
+npm install @chris5855/scats
 ```
 
 ### yarn
 
 ```bash
-yarn add @chrismichaelps/scats
+yarn add @chris5855/scats
 ```
 
 ### pnpm
 
 ```bash
-pnpm add @chrismichaelps/scats
+pnpm add @chris5855/scats
 ```
 
 ## Development
@@ -91,7 +91,7 @@ npm run test
 ### Option: Handling nullable values
 
 ```typescript
-import { Option, Some, None } from "@chrismichaelps/scats";
+import { Option, Some, None } from "@chris5855/scats";
 
 // Creating options
 const a = Some(42);
@@ -108,7 +108,7 @@ const result = a
 ### Either: Handling success/failure
 
 ```typescript
-import { Either, Left, Right } from "@chrismichaelps/scats";
+import { Either, Left, Right } from "@chris5855/scats";
 
 // Creating eithers
 const success = Right(42);
@@ -126,7 +126,7 @@ const result = success
 ### Try: Handling exceptions
 
 ```typescript
-import { Try, Success, Failure, TryAsync } from "@chrismichaelps/scats";
+import { Try, Success, Failure, TryAsync } from "@chris5855/scats";
 
 // Synchronous Try
 const jsonResult = Try.of(() => JSON.parse(jsonString))
@@ -159,7 +159,7 @@ import {
   not,
   type as matchType,
   object,
-} from "@chrismichaelps/scats";
+} from "@chris5855/scats";
 
 // Simple value matching
 const result = match(42)
@@ -227,7 +227,7 @@ match(new Cat())
 ### Immutable Collections
 
 ```typescript
-import { List, Map, Set, ArraySeq, ArrayBuffer } from "@chrismichaelps/scats";
+import { List, Map, Set, ArraySeq, ArrayBuffer } from "@chris5855/scats";
 
 // List
 const numbers = List.of(1, 2, 3, 4, 5);
@@ -265,7 +265,7 @@ console.log(Array.from(buffer).join(", ")); // "0, 1, 2, 3"
 ### LazyList
 
 ```typescript
-import { LazyList } from "@chrismichaelps/scats";
+import { LazyList } from "@chris5855/scats";
 
 // Creating a LazyList
 const numbers = LazyList.of(1, 2, 3, 4, 5);
@@ -303,7 +303,7 @@ const powers = LazyList.iterate(1, (n) => n * 2)
 ### Vector
 
 ```typescript
-import { Vector } from "@chrismichaelps/scats";
+import { Vector } from "@chris5855/scats";
 
 // Creating a Vector
 const vec = Vector.of(1, 2, 3, 4, 5);
@@ -345,7 +345,7 @@ import {
   List,
   ForComprehensionBuilder,
   Monad,
-} from "@chrismichaelps/scats";
+} from "@chris5855/scats";
 
 // Option comprehension
 const optionResult = For.option<{ a: number; b: number; c: number }>()
@@ -403,7 +403,7 @@ import {
   register,
   extension,
   withContext,
-} from "@chrismichaelps/scats";
+} from "@chris5855/scats";
 
 // Define a type class
 interface Numeric<T> extends TypeClass<T> {
@@ -461,7 +461,7 @@ console.log(`Add with type class: ${numeric.add(5, 10)}`); // Add with type clas
 ### Tuples
 
 ```typescript
-import { Tuple, Tuple2, Tuple3 } from "@chrismichaelps/scats";
+import { Tuple, Tuple2, Tuple3 } from "@chris5855/scats";
 
 // Creating tuples
 const pair = Tuple.of(1, "hello");
@@ -498,7 +498,7 @@ const entryTuple = Tuple.fromEntry(entry); // Tuple2("key", 123)
 ### Ordering
 
 ```typescript
-import { Ordering } from "@chrismichaelps/scats";
+import { Ordering } from "@chris5855/scats";
 
 // Using built-in orderings
 const numbers = [3, 1, 4, 1, 5, 9];
@@ -549,7 +549,7 @@ const byLastThenFirst = byLastname.andThen(byFirstname);
 ### Resource Management
 
 ```typescript
-import { Using, Closeable, Success } from "@chrismichaelps/scats";
+import { Using, Closeable, Success } from "@chris5855/scats";
 
 // Create a resource that needs to be closed
 class Resource implements Closeable {
@@ -587,7 +587,7 @@ const multiResult = Using.resources(
 ### State Monad
 
 ```typescript
-import { State } from "@chrismichaelps/scats";
+import { State } from "@chris5855/scats";
 
 // Simple counter using State monad
 const increment = State.modify<number>((n) => n + 1);
@@ -634,7 +634,7 @@ const newState = State.put<number>(100).exec(42); // 100
 ### Writer Monad
 
 ```typescript
-import { Writer, Monoids } from "@chrismichaelps/scats";
+import { Writer, Monoids } from "@chris5855/scats";
 
 // Simple logging with Writer monad
 const logNumber = (n: number) =>
