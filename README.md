@@ -5,8 +5,8 @@
 <div align="center">  
   <img src="https://img.shields.io/npm/v/@chris5855/scats" alt="npm version" />
   <img src="https://img.shields.io/npm/dm/@chris5855/scats" alt="npm downloads" />
-  <img src="https://img.shields.io/github/license/chrismichaelps/sca-ts?color=blue" alt="license" />
-  <img src="https://img.shields.io/github/stars/chrismichaelps/sca-ts?style=social" alt="stars" />
+  <img src="https://img.shields.io/github/license/chrismichaelps/scats?color=blue" alt="license" />
+  <img src="https://img.shields.io/github/stars/chrismichaelps/scats?style=social" alt="stars" />
 </div>
 
 A comprehensive TypeScript library bringing Scala's powerful functional programming paradigms to JavaScript/TypeScript, featuring immutable collections, monads, pattern matching, and more
