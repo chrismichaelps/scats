@@ -20,7 +20,6 @@ export {
   Try, Success, Failure, TryAsync
 } from './Try';
 
-
 export {
   ExecutionContext
 } from './ExecutionContext';
@@ -30,26 +29,37 @@ export { List } from './List';
 export { Map } from './Map';
 export { Set } from './Set';
 export * from './collections/Iterable';
-export { Seq, LinearSeq, IndexedSeq, MutableIndexedSeq, Buffer } from './collections/Seq';
+export type { Seq, LinearSeq, IndexedSeq, MutableIndexedSeq, Buffer } from './collections/Seq';
 export { ArraySeq } from './collections/ArraySeq';
 export { ArrayBuffer } from './collections/ArrayBuffer';
+
+// LazyList for infinite sequences and lazy evaluation
+export { LazyList } from './LazyList';
+
+
+// Vector for efficient indexed sequences
+export { Vector } from './vector';
 
 // Pattern matching
 export {
   match, when, otherwise, extract, value, object,
-  array, or, and, not, type, Pattern
+  array, or, and, not, type
 } from './Match';
+export type { Pattern } from './Match';
 
 // For-comprehensions
 export {
-  For, ForComprehension, ForComprehensionBuilder, Monad, Env
+  For, ForComprehension, ForComprehensionBuilder
 } from './ForComprehension';
+export type { Monad, Env } from './ForComprehension';
 
 // Type classes
+export type { TypeClass } from './TypeClass';
 export {
-  TypeClass, TypeClassRegistry, GlobalTypeClassRegistry,
+  TypeClassRegistry, GlobalTypeClassRegistry,
   register, extension, withContext
-} from './TypeClass'; 
+} from './TypeClass';
+
 // Tuples
 export * from './tuple';
 
@@ -59,5 +69,5 @@ export * from './ordering';
 // Resource management
 export * from './using';
 
-// Monads
+// Monads (including new Reader monad)
 export * from './monads';
