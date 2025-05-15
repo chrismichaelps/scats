@@ -1,6 +1,6 @@
 {
   "name": "@chris5855/scats",
-  "version": "0.1.1-alpha.1",
+  "version": "0.1.1-alpha.2",
   "description": "A comprehensive TypeScript library bringing Scala's powerful functional programming paradigms to JavaScript/TypeScript, featuring immutable collections, monads, pattern matching, and more",
   "type": "module",
   "main": "dist/index.js",
